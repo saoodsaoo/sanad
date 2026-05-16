@@ -15,7 +15,11 @@ workflows:
       - name: Prebuild Expo to generate Android folder
         script: |
           npx expo prebuild --platform android
-      - name: Build Android App
+      - name: Configure Proguard and Split APK for smaller size
+        script: |
+          # هذا السطر يخبر الأندرويد بتفعيل التخسيس وضغط الكود لمنع الحجم الزائد
+          sed -i 's/enableProguardInReleaseBuilds = false/enableProguardInReleaseBuilds = true/g' android/app/build.gradle
+      - name: Build Android App (Release Build)
         script: |
           cd android && ./gradlew assembleRelease
     artifacts:
