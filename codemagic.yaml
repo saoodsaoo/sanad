@@ -15,8 +15,8 @@ workflows:
       - name: Prebuild Expo to generate Android folder
         script: |
           npx expo prebuild --platform android
-      - name: Build Android App (Release Build)
+      - name: Build Android App (Release Optimization)
         script: |
-          cd android && ./gradlew assembleRelease
+          cd android && ./gradlew assembleRelease --no-daemon
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
