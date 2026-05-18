@@ -15,7 +15,24 @@ workflows:
       - name: Prebuild Expo to generate Android folder
         script: |
           npx expo prebuild --platform android
-      - name: Build Android App (Release Optimization)
+      - name: Optimize and Compress APK Size
+        script: |
+          node -e "
+          const fs = require('fs');
+          const path = 'android/app/build.gradle';
+          if (fs.existsSync(path)) {
+            let content = fs.readFileSync(path, 'utf8');
+            // 1. تفعيل البروجارد لضغط الأكواد وحذف الزوائد
+            content = content.replace(/enableProguardInReleaseBuilds\s*=\s*false/g, 'enableProguardInReleaseBuilds = true');
+            // 2. تفكيك التطبيق الفات إلى نسخ صغيرة لكل معالج لتخسيس الحجم
+            content = content.replace(/enableSeparateBuildPerCPUArchitecture\s*=\s*false/g, 'enableSeparateBuildPerCPUArchitecture = true');
+            fs.writeFileSync(path, content, 'utf8');
+            console.log('تم تطبيق هندسة التخسيس والضغط بنجاح!');
+          } else {
+            console.error('لم يتم العثور على ملف الإعدادات لتهجينه');
+          }
+          "
+      - name: Build Android App (Release Build)
         script: |
           cd android && ./gradlew assembleRelease --no-daemon
     artifacts:
