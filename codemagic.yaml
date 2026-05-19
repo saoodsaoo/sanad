@@ -1,6 +1,6 @@
 workflows:
   expo-android:
-    name: Build Sanad Expo APK
+    name: Build Sanad Expo APK (Maximum Compression)
     max_build_duration: 60
     instance_type: mac_mini_m1
     environment:
@@ -15,21 +15,23 @@ workflows:
       - name: Prebuild Expo to generate Android folder
         script: |
           npx expo prebuild --platform android
-      - name: Optimize and Compress APK Size
+      - name: Inject Ultra Compression Scripts
         script: |
           node -e "
           const fs = require('fs');
-          const path = 'android/app/build.gradle';
-          if (fs.existsSync(path)) {
-            let content = fs.readFileSync(path, 'utf8');
-            // 1. تفعيل البروجارد لضغط الأكواد وحذف الزوائد
+          const gradlePath = 'android/app/build.gradle';
+          if (fs.existsSync(gradlePath)) {
+            let content = fs.readFileSync(gradlePath, 'utf8');
+            // 1. تفعيل البروجارد لتنظيف الأكواد
             content = content.replace(/enableProguardInReleaseBuilds\s*=\s*false/g, 'enableProguardInReleaseBuilds = true');
-            // 2. تفكيك التطبيق الفات إلى نسخ صغيرة لكل معالج لتخسيس الحجم
+            // 2. تفعيل فصل المعالجات لتخسيس الحجم لأقصى درجة
             content = content.replace(/enableSeparateBuildPerCPUArchitecture\s*=\s*false/g, 'enableSeparateBuildPerCPUArchitecture = true');
-            fs.writeFileSync(path, content, 'utf8');
-            console.log('تم تطبيق هندسة التخسيس والضغط بنجاح!');
+            // 3. تفعيل ضغط الموارد وحذف الصور والملفات غير المستخدمة
+            content = content.replace(/shrinkResources\s+false/g, 'shrinkResources true');
+            fs.writeFileSync(gradlePath, content, 'utf8');
+            console.log(' تم حقن سكريبتات الضغط الأقصى بنجاح!');
           } else {
-            console.error('لم يتم العثور على ملف الإعدادات لتهجينه');
+            console.error('الملف غير موجود!');
           }
           "
       - name: Build Android App (Release Build)
