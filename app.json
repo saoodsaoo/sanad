@@ -34,10 +34,7 @@
       "package": "com.saood.sanad"
     },
     "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "accef6df-d772-4013-b679-e5c56f02fc73"
-      }
+      "router": {}
     }
   }
 }
